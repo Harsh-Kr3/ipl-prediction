@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL 2026 Ultimate Predictor & NRR Calculator Pro</title>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #172a45;
+            --accent: #00b4d8;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            
+            /* Team Color Accent Map System */
+            --brand-GT: #0b2240; --brand-RCB: #333333; --brand-SRH: #f26522;
+            --brand-PBKS: #dd1f26; --brand-CSK: #fdb913; --brand-RR: #ea1a85;
+            --brand-DC: #004c93; --brand-KKR: #3a225d; --brand-MI: #004b87;
+            --brand-LSG: #0057e2;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 25px; }
+        
+        /* Modern Header UX */
+        .app-header { text-align: center; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(10,25,47,0.15); margin-bottom: 30px; }
+        .app-header h1 { margin: 0 0 8px 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; }
+        .app-header p { margin: 0; color: #94a3b8; font-size: 1.1rem; }
+
+        /* Global Control Actions Bar */
+        .control-bar { max-width: 1350px; margin: 0 auto 25px auto; display: flex; gap: 12px; justify-content: flex-end; }
+        .action-btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .btn-magic { background: #10b981; color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+        .btn-magic:hover { background: #059669; transform: translateY(-1px); }
+        .btn-clear { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.2); }
+        .btn-clear:hover { background: #dc2626; transform: translateY(-1px); }
+
+        /* Grid Framework Layout */
+        .container { max-width: 1350px; margin: auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; align-items: start; }
+        .section { background: var(--card-bg); padding: 24px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+        .section-title { font-size: 1.4rem; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-weight: 700; border-bottom: 2px solid #edf2f7; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Points Table UX Styles */
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: var(--primary); color: white; padding: 12px 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        .top4-row { background-color: #f0fdf4 !important; font-weight: 600; }
+        .top4-row td:first-child { border-left: 5px solid #22c55e; border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+        
+        /* Interactive Form Badges */
+        .form-wrap { display: flex; gap: 4px; }
+        .form-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .dot-win { background: #10b981; }
+        .dot-loss { background: #ef4444; }
+
+        /* Fixture Pipeline Feed Layout */
+        .match-list-container { max-height: 85vh; overflow-y: auto; padding-right: 8px; }
+        .match-card { border: 1px solid #e2e8f0; padding: 16px; margin-bottom: 14px; border-radius: 12px; background: #fff; transition: all 0.2s ease; position: relative; }
+        .match-card:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+        .match-card .meta { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 12px; text-transform: uppercase; display: flex; justify-content: space-between; letter-spacing: 0.5px; align-items: center; }
+        
+        /* Indicators & Individual Actions */
+        .status-badge { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+        .status-predicted { background-color: #d1fae5; color: #065f46; }
+        .status-pending { background-color: #f1f5f9; color: #64748b; }
+        
+        .single-reset-btn { background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; text-transform: uppercase; }
+        .single-reset-btn:hover { background-color: #ffe4e6; color: #ef4444; }
+
+        /* Interactive Team Prediction Rows */
+        .team-row { display: flex; align-items: center; justify-content: space-between; margin: 6px 0; padding: 10px 14px; border-radius: 8px; cursor: pointer; border: 1px solid #edf2f7; transition: all 0.15s ease; background: #f8fafc; }
+        .team-row:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .team-name { font-weight: 700; font-size: 15px; color: #334155; }
+        
+        /* Dynamic Brand Accents Mapping Styles */
+        .team-row[data-team="GT"] { border-left: 4px solid var(--brand-GT); } .team-row[data-team="RCB"] { border-left: 4px solid var(--brand-RCB); }
+        .team-row[data-team="SRH"] { border-left: 4px solid var(--brand-SRH); } .team-row[data-team="PBKS"] { border-left: 4px solid var(--brand-PBKS); }
+        .team-row[data-team="CSK"] { border-left: 4px solid var(--brand-CSK); } .team-row[data-team="RR"] { border-left: 4px solid var(--brand-RR); }
+        .team-row[data-team="DC"] { border-left: 4px solid var(--brand-DC); } .team-row[data-team="KKR"] { border-left: 4px solid var(--brand-KKR); }
+        .team-row[data-team="MI"] { border-left: 4px solid var(--brand-MI); } .team-row[data-team="LSG"] { border-left: 4px solid var(--brand-LSG); }
+
+        /* Activated Selection Styling */
+        .winner-selected { background: #ecfdf5 !important; border: 1px solid #10b981 !important; border-left-width: 6px !important; }
+        .winner-selected .team-name { color: #065f46; }
+        
+        /* Margin Selection Inputs Box */
+        .margin-box { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 13px; color: #475569; }
+        .margin-inputs { display: flex; align-items: center; gap: 8px; }
+        .margin-box select, .margin-box input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; background: #fff; font-size: 13px; font-weight: 500; }
+        .margin-box input { width: 50px; text-align: center; font-weight: 700; color: var(--primary); }
+
+        /* Persistent Bottom Knockout Bracket Block UX */
+        .playoff-box { background: linear-gradient(180deg, #fefce8 0%, #fef9c3 100%); border: 2px dashed #eab308; padding: 20px; border-radius: 14px; margin-top: 25px; }
+        .tbd-badge { background: #e2e8f0; color: #64748b; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .playoff-locked-banner { background: #eab308; color: #451a03; padding: 8px; text-align: center; border-radius: 8px; font-weight: 700; font-size: 13px; margin-bottom: 15px; }
+
+        /* Webkit Utilities Scrollbar UI */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <h1>IPL 2026 Engine Simulator Pro</h1>
+        <p>Predict match outcomes, control margins </h2>
+        <p> At least here, your team can top the table 😉</p>
+    </div>
+
+    <div class="control-bar">
+        <button class="action-btn btn-magic" onclick="runRandomSimulation()"> Predict Randomly</button>
+        <button class="action-btn btn-clear" onclick="resetSimulator()">Reset All </button>
+    </div>
+
+    <div class="container">
+        <!-- Live Standings Column Panel Grid View -->
+        <div class="section">
+            <div class="section-title">Live Point Table Standings</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">Pos</th>
+                        <th>Franchise Team</th>
+                        <th style="text-align: center;">Pld</th>
+                        <th style="text-align: center;">W</th>
+                        <th style="text-align: center;">L</th>
+                        <th style="text-align: center;">Pts</th>
+                        <th style="text-align: right;">Net RR</th>
+                        <th style="text-align: center; padding-left: 20px;">Recent Form</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Fixtures Pipeline Feed Column Container -->
+        <div class="section">
+            <div class="section-title">Regular Season Fixtures Stream</div>
+            <div class="match-list-container" id="leagueMatches"></div>
+            
+            <!-- Dynamic Championship Knockout Matrix Block System -->
+            <div class="playoff-box">
+                <div class="section-title" style="border-bottom: 2px solid #fef08a; color: #854d0e; margin-bottom: 15px;">🏆 Championship Knockout Playoffs Matrix</div>
+                <div id="playoffMatches"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Full catalog layout processing all 70 scheduled regular stage league matches
+        const leagueFixtures = [
+            { id: 1, t1: "RCB", t2: "SRH" }, { id: 2, t1: "MI", t2: "KKR" }, { id: 3, t1: "RR", t2: "CSK" }, { id: 4, t1: "PBKS", t2: "GT" },
+            { id: 5, t1: "LSG", t2: "DC" }, { id: 6, t1: "KKR", t2: "SRH" }, { id: 7, t1: "CSK", t2: "PBKS" }, { id: 8, t1: "DC", t2: "MI" },
+            { id: 9, t1: "GT", t2: "RR" }, { id: 10, t1: "SRH", t2: "LSG" }, { id: 11, t1: "RCB", t2: "CSK" }, { id: 12, t1: "KKR", t2: "PBKS" },
+            { id: 13, t1: "RR", t2: "MI" }, { id: 14, t1: "DC", t2: "GT" }, { id: 15, t1: "KKR", t2: "LSG" }, { id: 16, t1: "RR", t2: "RCB" },
+            { id: 17, t1: "PBKS", t2: "SRH" }, { id: 18, t1: "CSK", t2: "DC" }, { id: 19, t1: "LSG", t2: "GT" }, { id: 20, t1: "MI", t2: "RCB" },
+            { id: 21, t1: "SRH", t2: "RR" }, { id: 22, t1: "CSK", t2: "KKR" }, { id: 23, t1: "RCB", t2: "LSG" }, { id: 24, t1: "MI", t2: "PBKS" },
+            { id: 25, t1: "GT", t2: "KKR" }, { id: 26, t1: "RCB", t2: "DC" }, { id: 27, t1: "SRH", t2: "CSK" }, { id: 28, t1: "KKR", t2: "RR" },
+            { id: 29, t1: "PBKS", t2: "LSG" }, { id: 30, t1: "GT", t2: "MI" }, { id: 31, t1: "SRH", t2: "DC" }, { id: 32, t1: "LSG", t2: "RR" },
+            { id: 33, t1: "MI", t2: "CSK" }, { id: 34, t1: "RCB", t2: "GT" }, { id: 35, t1: "DC", t2: "PBKS" }, { id: 36, t1: "RR", t2: "SRH" },
+            { id: 37, t1: "GT", t2: "CSK" }, { id: 38, t1: "LSG", t2: "KKR" }, { id: 39, t1: "DC", t2: "RCB" }, { id: 40, t1: "PBKS", t2: "RR" },
+            { id: 41, t1: "MI", t2: "SRH" }, { id: 42, t1: "GT", t2: "RCB" }, { id: 43, t1: "RR", t2: "DC" }, { id: 44, t1: "CSK", t2: "MI" },
+            { id: 45, t1: "SRH", t2: "KKR" }, { id: 46, t1: "GT", t2: "PBKS" }, { id: 47, t1: "MI", t2: "LSG" }, { id: 48, t1: "DC", t2: "CSK" },
+            { id: 49, t1: "SRH", t2: "PBKS" }, { id: 50, t1: "LSG", t2: "RCB" }, { id: 51, t1: "DC", t2: "KKR" }, { id: 52, t1: "RR", t2: "GT" },
+            { id: 53, t1: "CSK", t2: "LSG" }, { id: 54, t1: "RCB", t2: "MI" }, { id: 55, t1: "PBKS", t2: "DC" }, { id: 56, t1: "GT", t2: "SRH" },
+            { id: 57, t1: "RCB", t2: "KKR" }, { id: 58, t1: "PBKS", t2: "MI" }, { id: 59, t1: "LSG", t2: "CSK" }, { id: 60, t1: "KKR", t2: "GT" },
+            { id: 61, t1: "PBKS", t2: "RCB" }, { id: 62, t1: "DC", t2: "RR" },  { id: 63, t1: "CSK", t2: "SRH" }, { id: 64, t1: "RR", t2: "LSG" },
+            { id: 65, t1: "KKR", t2: "MI" },  { id: 66, t1: "GT", t2: "CSK" },  { id: 67, t1: "SRH", t2: "RCB" }, { id: 68, t1: "LSG", t2: "PBKS" },
+            { id: 69, t1: "MI", t2: "RR" },  { id: 70, t1: "KKR", t2: "DC" }
+        ];
+
+        // Initial setup matching explicit tracking coordinates inside local engine parameters
+        const baseTeams = [
+            { name: "GT", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "RCB", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "SRH", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "PBKS", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "CSK", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "RR", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "DC", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "KKR", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "MI", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] },
+            { name: "LSG", pld: 0, w: 0, l: 0, points: 0, nrr: 0.000, form: [] }
+        ];
+
+        let statePredictions = JSON.parse(localStorage.getItem('ipl_v4_preds')) || {};
+        let playoffPredictions = JSON.parse(localStorage.getItem('ipl_v4_playoffs')) || {};
+
+        function computeStandingsEngine() {
+            let teamsMap = {};
+            baseTeams.forEach(t => { teamsMap[t.name] = JSON.parse(JSON.stringify(t)); });
+
+            // Process existing predictions configurations
+            Object.keys(statePredictions).forEach(mId => {
+                const conf = statePredictions[mId];
+                const fixture = leagueFixtures.find(f => f.id == mId);
+                if (!fixture || !conf.winner) return;
+
+                const W = conf.winner;
+                const L = (W === fixture.t1) ? fixture.t2 : fixture.t1;
+
+                teamsMap[W].pld += 1; teamsMap[W].w += 1; teamsMap[W].points += 2; teamsMap[W].form.push('W');
+                teamsMap[L].pld += 1; teamsMap[L].l += 1; teamsMap[L].form.push('L');
+
+                let variance = 0.15;
+                const margin = parseFloat(conf.marginValue) || 10;
+                if (conf.marginType === "runs") { variance = (margin / 20); }
+                else if (conf.marginType === "wickets") { variance = ((10 - margin) * 0.25) + 0.1; }
+
+                teamsMap[W].nrr += variance;
+                teamsMap[L].nrr -= variance;
+            });
+
+            let sortedArr = Object.values(teamsMap).sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                return b.nrr - a.nrr;
+            });
+
+            renderTableDOM(sortedArr);
+            evaluatePlayoffsDOM(sortedArr);
+        }
+
+        function renderTableDOM(sortedTeams) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = sortedTeams.map((t, idx) => {
+                const recentFormBadges = t.form.slice(-5).map(f => `
+                    <div class="form-dot ${f === 'W' ? 'dot-win' : 'dot-loss'}">${f}</div>
+                `).join('');
+
+                return `
+                    <tr class="${idx < 4 ? 'top4-row' : ''}">
+                        <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
+                        <td style="font-weight: 700; color: var(--brand-${t.name});">${t.name}</td>
+                        <td style="text-align: center;">${t.pld}</td>
+                        <td style="text-align: center; color: #10b981; font-weight: 600;">${t.w}</td>
+                        <td style="text-align: center; color: #ef4444; font-weight: 600;">${t.l}</td>
+                        <td style="text-align: center; font-weight: 800; color: var(--primary); font-size: 15px;">${t.points}</td>
+                        <td style="text-align: right; font-family: monospace; font-weight: 700; color: ${t.nrr >= 0 ? '#10b981' : '#ef4444'}">
+                            ${t.nrr >= 0 ? '+' : ''}${t.nrr.toFixed(3)}
+                        </td>
+                        <td style="padding-left: 20px;"><div class="form-wrap">${recentFormBadges || '<span style="color:#94a3b8; font-size:12px;">No games</span>'}</div></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderLeagueFixturesDOM() {
+            const container = document.getElementById('leagueMatches');
+            container.innerHTML = leagueFixtures.map(m => {
+                const saved = statePredictions[m.id] || {};
+                const isPredicted = !!saved.winner;
+                
+                const statusBadge = isPredicted 
+                    ? `<span class="status-badge status-predicted">● Predicted</span>` 
+                    : `<span class="status-badge status-pending">○ Pending</span>`;
+                    
+                const resetBtn = isPredicted 
+                    ? `<button class="single-reset-btn" onclick="resetSingleMatch(${m.id}); event.stopPropagation();">Reset Game</button>` 
+                    : ``;
+
+                return `
+                    <div class="match-card" id="match_card_${m.id}">
+                        <div class="meta">
+                            <span>Match ${m.id} • League Stage</span> 
+                            ${statusBadge}
+                        </div>
+                        <div class="team-row ${saved.winner === m.t1 ? 'winner-selected' : ''}" data-team="${m.t1}" onclick="assignWinner(${m.id}, '${m.t1}')">
+                            <span class="team-name">${m.t1}</span>
+                            ${saved.winner === m.t1 ? 'W' : ''}
+                        </div>
+                        <div class="team-row ${saved.winner === m.t2 ? 'winner-selected' : ''}" data-team="${m.t2}" onclick="assignWinner(${m.id}, '${m.t2}')">
+                            <span class="team-name">${m.t2}</span>
+                            ${saved.winner === m.t2 ? 'W' : ''}
+                        </div>
+                        <div class="margin-box">
+                            <div class="margin-inputs">
+                                <span>Margin:</span>
+                                <input type="number" id="m_val_${m.id}" value="${saved.marginValue || 10}" min="1" onchange="modifyCardMargin(${m.id})">
+                                <select id="m_type_${m.id}" onchange="modifyCardMargin(${m.id})">
+                                    <option value="runs" ${saved.marginType === 'runs' ? 'selected' : ''}>Runs</option>
+                                    <option value="wickets" ${saved.marginType === 'wickets' ? 'selected' : ''}>Wickets Left</option>
+                                </select>
+                            </div>
+                            ${resetBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function assignWinner(matchId, teamName) {
+            if (!statePredictions[matchId]) {
+                statePredictions[matchId] = { marginValue: 10, marginType: "runs" };
+            }
+            statePredictions[matchId].winner = teamName;
+            
+            const valEl = document.getElementById(`m_val_${matchId}`);
+            const typEl = document.getElementById(`m_type_${matchId}`);
+            if(valEl && typEl) {
+                statePredictions[matchId].marginValue = parseInt(valEl.value) || 10;
+                statePredictions[matchId].marginType = typEl.value;
+            }
+
+            playoffPredictions = {}; // Wipe knockout dependency tree elements layout cascade rules
+            localStorage.setItem('ipl_v4_playoffs', JSON.stringify(playoffPredictions));
+            commitEngineMemory();
+            renderLeagueFixturesDOM(); // Refresh layout to mount states & flags dynamically
+        }
+
+        function modifyCardMargin(matchId) {
+            if (!statePredictions[matchId] || !statePredictions[matchId].winner) return;
+            statePredictions[matchId].marginValue = parseInt(document.getElementById(`m_val_${matchId}`).value) || 10;
+            statePredictions[matchId].marginType = document.getElementById(`m_type_${matchId}`).value;
+            commitEngineMemory();
+        }
+
+        function resetSingleMatch(matchId) {
+            if(statePredictions[matchId]) {
+                delete statePredictions[matchId];
+                playoffPredictions = {}; // Wipe knockouts layout parameters to prevent logical mismatch cascades
+                localStorage.setItem('ipl_v4_playoffs', JSON.stringify(playoffPredictions));
+                commitEngineMemory();
+                renderLeagueFixturesDOM();
+            }
+        }
+
+        function evaluatePlayoffsDOM(sortedTeams) {
+            const displayBox = document.getElementById('playoffMatches');
+            const totalLeagueCalculated = Object.keys(statePredictions).length;
+            const leagueDone = totalLeagueCalculated === leagueFixtures.length;
+
+            const r1 = leagueDone ? sortedTeams[0].name : "1st Place Team";
+            const r2 = leagueDone ? sortedTeams[1].name : "2nd Place Team";
+            const r3 = leagueDone ? sortedTeams[2].name : "3rd Place Team";
+            const r4 = leagueDone ? sortedTeams[3].name : "4th Place Team";
+
+            let q1W = playoffPredictions['q1'];
+            let q1L = q1W ? (q1W === r1 ? r2 : r1) : "Loser Q1";
+            let elW = playoffPredictions['el'];
+            let q2W = playoffPredictions['q2'];
+            let fW = playoffPredictions['final'];
+
+            let html = "";
+            if (leagueDone) {
+                html += `<div class="playoff-locked-banner">🔒 Regular Season Concluded! Knockouts Schedule Unlocked.</div>`;
+            } else {
+                html += `<div class="playoff-locked-banner" style="background: #cbd5e1; color:#475569;">⏳ Finish all 70 regular season games to unlock dynamic lineups</div>`;
+            }
+
+            html += `
+                <!-- Qualifier 1 Node Card Layout -->
+                <div class="match-card" style="background: #fff;">
+                    <div class="meta"><span>Match 71: Qualifier 1</span> ${!leagueDone ? '<span class="tbd-badge">[TBD]</span>' : ''}</div>
+                    <div class="team-row ${q1W === r1 ? 'winner-selected' : ''}" data-team="${r1}" onclick="triggerPlayoffClick('q1', '${r1}', ${leagueDone})">
+                        <span class="team-name">${r1}</span>
+                    </div>
+                    <div class="team-row ${q1W === r2 ? 'winner-selected' : ''}" data-team="${r2}" onclick="triggerPlayoffClick('q1', '${r2}', ${leagueDone})">
+                        <span class="team-name">${r2}</span>
+                    </div>
+                </div>
+
+                <!-- Eliminator Node Card Layout -->
+                <div class="match-card" style="background: #fff;">
+                    <div class="meta"><span>Match 72: Eliminator</span> ${!leagueDone ? '<span class="tbd-badge">[TBD]</span>' : ''}</div>
+                    <div class="team-row ${elW === r3 ? 'winner-selected' : ''}" data-team="${r3}" onclick="triggerPlayoffClick('el', '${r3}', ${leagueDone})">
+                        <span class="team-name">${r3}</span>
+                    </div>
+                    <div class="team-row ${elW === r4 ? 'winner-selected' : ''}" data-team="${r4}" onclick="triggerPlayoffClick('el', '${r4}', ${leagueDone})">
+                        <span class="team-name">${r4}</span>
+                    </div>
+                </div>
+
+                <!-- Qualifier 2 Node Card Layout -->
+                <div class="match-card" style="background: #fff;">
+                    <div class="meta"><span>Match 73: Qualifier 2</span> ${(leagueDone && q1W && elW) ? '' : '<span class="tbd-badge">[TBD]</span>'}</div>
+                    <div class="team-row ${q2W === q1L ? 'winner-selected' : ''}" data-team="${q1L}" onclick="triggerPlayoffClick('q2', '${q1L}', ${Boolean(leagueDone && q1W && elW)})">
+                        <span class="team-name">${q1L}</span>
+                    </div>
+                    <div class="team-row ${q2W === elW ? 'winner-selected' : ''}" data-team="${elW}" onclick="triggerPlayoffClick('q2', '${elW}', ${Boolean(leagueDone && q1W && elW)})">
+                        <span class="team-name">${elW}</span>
+                    </div>
+                </div>
+
+                <!-- Grand Final Node Card Layout -->
+                <div class="match-card" style="background: linear-gradient(to right, #ffffff, #fffbeb); border: 2px dashed #f59e0b;">
+                    <div class="meta"><span style="color:#d97706; font-weight:800;">Match 74: GRAND FINAL</span> ${(leagueDone && q1W && q2W) ? '' : '<span class="tbd-badge">[TBD]</span>'}</div>
+                    <div class="team-row ${fW === q1W ? 'winner-selected' : ''}" data-team="${q1W}" onclick="triggerPlayoffClick('final', '${q1W}', ${Boolean(leagueDone && q1W && q2W)})">
+                        <span class="team-name">${q1W}</span>
+                    </div>
+                    <div class="team-row ${fW === q2W ? 'winner-selected' : ''}" data-team="${q2W}" onclick="triggerPlayoffClick('final', '${q2W}', ${Boolean(leagueDone && q1W && q2W)})">
+                        <span class="team-name">${q2W}</span>
+                    </div>
+                </div>
+            `;
+
+            if (fW && leagueDone) {
+                html += `<div style="text-align:center; padding:15px; background:#10b981; color:white; font-weight:800; border-radius:10px; font-size:18px; box-shadow:0 4px 12px rgba(16,185,129,0.2);">🏆 TOURNAMENT CHAMPION: ${fW} 🏆</div>`;
+            }
+
+            displayBox.innerHTML = html;
+        }
+
+        function triggerPlayoffClick(stageKey, teamName, isPlayable) {
+            if (!isPlayable || teamName.includes("Team") || teamName.includes("Q1") || teamName.includes("Elim")) return;
+            playoffPredictions[stageKey] = teamName;
+
+            if (stageKey === 'q1' || stageKey === 'el') { delete playoffPredictions['q2']; delete playoffPredictions['final']; }
+            if (stageKey === 'q2') { delete playoffPredictions['final']; }
+
+            localStorage.setItem('ipl_v4_playoffs', JSON.stringify(playoffPredictions));
+            computeStandingsEngine();
+        }
+
+        function runRandomSimulation() {
+            leagueFixtures.forEach(m => {
+                if (!statePredictions[m.id]) {
+                    const picked = Math.random() > 0.5 ? m.t1 : m.t2;
+                    const typ = Math.random() > 0.4 ? "runs" : "wickets";
+                    const val = typ === "runs" ? Math.floor(Math.random() * 50) + 5 : Math.floor(Math.random() * 7) + 1;
+                    
+                    statePredictions[m.id] = { winner: picked, marginValue: val, marginType: typ };
+                }
+            });
+            renderLeagueFixturesDOM();
+            commitEngineMemory();
+        }
+
+        function commitEngineMemory() {
+            localStorage.setItem('ipl_v4_preds', JSON.stringify(statePredictions));
+            computeStandingsEngine();
+        }
+
+        function resetSimulator() {
+            if (confirm("Reset everything back to starting position? All calculated Net Run Rates and predictions will be cleared from Local Storage memory.")) {
+                localStorage.clear();
+                statePredictions = {};
+                playoffPredictions = {};
+                renderLeagueFixturesDOM();
+                computeStandingsEngine();
+            }
+        }
+
+        // Boot-Up App Instance Initialization 
+        renderLeagueFixturesDOM();
+        computeStandingsEngine();
+    </script>
+</body>
+</html>
